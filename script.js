@@ -51,28 +51,32 @@ const CREW = {
 
 // 1a. Use document.getElementById to grab the element with id "page-title".
 //     Save it in a const called pageTitle. Then console.log(pageTitle).
-// TODO 1a:
-
+const pageTitle = document.getElementById("page-title");
+console.log("TODO 1a:", pageTitle);
 
 // 1b. Use document.getElementsByClassName to grab all elements with the
 //     class "stat". Save it in a const called statList.
 //     Then console.log statList AND console.log Array.isArray(statList).
 //     (Spoiler from the slides: it's NOT a real array.)
-// TODO 1b:
-
+const statList = document.getElementsByClassName("stat");
+console.log("TODO 1b: statList", statList);
+console.log("TODO 1b: Array.isArray(statList)", Array.isArray(statList));
 
 // 1c. Use document.getElementsByTagName to grab every <button> on the page.
 //     Save it in a const called allButtons. Then console.log how many
 //     buttons there are using allButtons.length.
-// TODO 1c:
-
+const allButtons = document.getElementsByTagName("button");
+console.log("TODO 1c: allButtons", allButtons);
+console.log("TODO 1c: Number of buttons", allButtons.length);
 
 // 1d. Use document.querySelector to grab the FIRST element matching
 //     ".switch-btn" (a CSS selector). Save it in a const called firstSwitchBtn.
 //     Then use document.querySelectorAll to grab ALL of them — save that in
 //     a const called allSwitchBtns. console.log both.
-// TODO 1d:
-
+const firstSwitchBtn = document.querySelector(".switch-btn");
+const allSwitchBtns = document.querySelectorAll(".switch-btn");
+console.log("TODO 1d: firstSwitchBtn", firstSwitchBtn);
+console.log("TODO 1d: allSwitchBtns", allSwitchBtns);
 
 /* =========================================================
    PART 2 — TURN A NODELIST INTO A REAL ARRAY
@@ -81,9 +85,11 @@ const CREW = {
 
 // 2. Take the statList from TODO 1b and turn it into a real array using
 //    the spread operator (...). Save it in a const called statArray.
-//    Then call .forEach() on statArray and console.log each stat element's
-//    .innerText. (.forEach would NOT work on the original NodeList!)
-// TODO 2:
+const statArray = [...statList];
+console.log("TODO 2: statArray", statArray);
+statArray.forEach((stat) => {
+  console.log("TODO 2: Stat innerText", stat.innerText);
+});
 
 
 /* =========================================================
@@ -114,34 +120,53 @@ const CREW = {
 //      const li = document.createElement("li");
 //      li.className = "stat";
 //      li.innerText = "Driving: 99";
-//      document.getElementById("stats").appendChild(li);
-//
-// TODO 3:
+//      document.getElementById("stats").appendChild(li); 
+function showMember(key) {
+  const member = CREW[key];
 
+  document.getElementById("member-name").innerText = member.name;
+  document.querySelector(".bio").innerText = member.bio;
+  document.getElementById("member-photo").src = member.photo;
+
+  const statsUl = document.getElementById("stats");
+  statsUl.innerHTML = ""; // Clear out old stats
+
+  member.stats.forEach((statText) => {
+    const li = document.createElement("li");
+    li.className = "stat";
+    li.textContent = statText;
+    statsUl.appendChild(li);
+  });
+}
+
+// Initialize with Dom Toretto on page load
+showMember("dom");
 
 /* =========================================================
    PART 4 — EVENT LISTENERS
    ---------------------------------------------------------
    ========================================================= */
-
 // 4a. Hook up each switch button so clicking it shows that member.
-//     Loop through allSwitchBtns (from TODO 1d) using forEach.
-//     For each button, addEventListener("click", ...) and inside the
-//     callback, read the data attribute with btn.dataset.member, then
-//     call showMember(...) with that key.
-//
-//     HINT: <button data-member="dom"> ... </button>
-//           In JS: btn.dataset.member  // "dom"
-// TODO 4a:
-
+allSwitchBtns.forEach((btn) => {
+  btn.addEventListener("click", () => {
+    const memberKey = btn.dataset.member;
+    showMember(memberKey);
+  });
+});
 
 // 4b. Wire up the "Remove from Crew" button (id="remove-member-btn").
 //     When clicked, remove the entire #crew-card from the page.
 //
 //     Use the parentNode trick from the slides:
 //       oldNode.parentNode.removeChild(oldNode)
-// TODO 4b:
-
+// TODO 4b: 
+const removeMemberBtn = document.getElementById("remove-member-btn");
+removeMemberBtn.addEventListener("click", () => {
+  const crewCard = document.getElementById("crew-card");
+  if (crewCard) {
+    crewCard.parentNode.removeChild(crewCard);
+  }
+});
 
 /* =========================================================
    PART 5 — FORMS
@@ -166,8 +191,41 @@ const CREW = {
 //      li.innerText = `${name} drives a ${ride} `;
 //      li.appendChild(deleteBtn);
 //
-// TODO 5:
+// TODO 5: 
+const addMemberForm = document.getElementById("add-member-form");
+const recruitsList = document.getElementById("recruits");
 
+addMemberForm.addEventListener("submit", (event) => {
+  event.preventDefault(); // a) Call event.preventDefault()
+
+  const newNameInput = document.getElementById("new-name");
+  const newRideInput = document.getElementById("new-ride");
+
+  const name = newNameInput.value.trim();
+  const ride = newRideInput.value.trim();
+
+  // c) If either is empty, return early
+  if (!name || !ride) {
+    return;
+  }
+
+  // d) Create a new <li>
+  const li = document.createElement("li");
+  li.innerText = `${name} drives a ${ride} `; // HINT: space after ride
+
+  // e) Create a <button> with class "delete-btn" and innerText "Remove"
+  const deleteBtn = document.createElement("button");
+  deleteBtn.className = "delete-btn";
+  deleteBtn.innerText = "Remove";
+  deleteBtn.addEventListener("click", () => {
+    li.parentNode.removeChild(li);
+  });
+  li.appendChild(deleteBtn);
+
+  recruitsList.appendChild(li); // f) Append the <li> to #recruits
+  newNameInput.value = ""; // g) Clear both input fields
+  newRideInput.value = "";
+});
 
 /* =========================================================
    PART 6 — CHANGING STYLES
@@ -180,9 +238,23 @@ const CREW = {
 //      - Blue Tint -> "#1a2a5a"
 //      - Reset     -> "#2a2a2a" (the original)
 //
-//    Use:  document.getElementById("crew-card").style.backgroundColor = "..."
-// TODO 6:
+// TODO 6: 
+const crewCard = document.getElementById("crew-card");
+const redBtn = document.getElementById("red-btn");
+const blueBtn = document.getElementById("blue-btn");
+const resetBtn = document.getElementById("reset-btn");
 
+redBtn.addEventListener("click", () => {
+  crewCard.style.backgroundColor = "#5a1a1a";
+});
+
+blueBtn.addEventListener("click", () => {
+  crewCard.style.backgroundColor = "#1a2a5a";
+});
+
+resetBtn.addEventListener("click", () => {
+  crewCard.style.backgroundColor = "#2a2a2a";
+});
 
 /* =========================================================
    STRETCH GOALS (optional)
